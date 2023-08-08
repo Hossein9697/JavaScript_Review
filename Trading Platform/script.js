@@ -277,48 +277,6 @@ const eatingWell = function (dog) {
   );
 };
 
-const dogs = [
-  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
-  { weight: 8, curFood: 200, owners: ['Matilda'] },
-  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
-  { weight: 32, curFood: 340, owners: ['Michael'] },
-];
-
-dogs.forEach(dog => {
-  dog.recommendedFood = dog.weight ** 0.75 * 28;
-});
-
-const dog = dogs.find(dog => {
-  return dog.owners.includes('Sarah');
-});
-
-const ownersEatTooMuch = dogs
-  .filter(dog => dog.curFood > dog.recommendedFood * 0.9)
-  .flatMap(dog => dog.owners);
-
-const ownersEatTooLittle = dogs
-  .filter(dog => dog.curFood < dog.recommendedFood * 1.1)
-  .flatMap(dog => dog.owners);
-
-console.log(ownersEatTooMuch.join(' and ') + "'s dogs eat too much!");
-console.log(ownersEatTooLittle.join(' and ') + "'s dogs eat too little!");
-
-const dog1 = dogs.some(dog => dog.recommendedFood === dog.curFood);
-const dog2 = dogs.some(eatingWell);
-const dog3 = dogs.filter(eatingWell);
-console.log(dog1);
-console.log(dog2);
-console.log(dog3);
-
-const otherDogs = dogs.slice().sort((a, b) => a.curFood - b.curFood);
-console.log(otherDogs);
-
-const date = new Date(account1.movementsDates[0]);
-console.log(date);
-console.log(date.getFullYear());
-console.log(date.getDate());
-console.log(date.getDay());
-
 // currentAccout = account1;
 // updateUi(account1);
 // containerApp.style.opacity = 100;
