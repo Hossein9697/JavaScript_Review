@@ -81,6 +81,29 @@ const currencies = new Map([
 ]);
 
 /////////////////////////////////////////////////
+let currentAccout, timer;
+
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = Math.trunc(time / 60)
+      .toString()
+      .padStart(2, '0');
+    const second = String(time % 60).padStart(2, '0');
+    labelTimer.textContent = `${min}:${second}`;
+
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = 'Log in to get started';
+      containerApp.style.opacity = 0;
+    }
+    --time;
+  };
+  let time = 120;
+  tick();
+
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
 
 const formatCur = function (value, locale, currency) {
   return new Intl.NumberFormat(locale, {
@@ -184,8 +207,6 @@ const updateUi = function (acc) {
 
 createUsernames(accounts);
 
-let currentAccout;
-
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
   currentAccout = accounts.find(
@@ -216,6 +237,8 @@ btnLogin.addEventListener('click', function (e) {
     containerApp.style.opacity = 100;
     inputLoginPin.value = inputLoginUsername.value = '';
     inputLoginPin.blur();
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
 
     updateUi(currentAccout);
   }
@@ -246,6 +269,9 @@ btnTransfer.addEventListener('click', function (e) {
 
   userToTransfer.movements.push(amount);
   userToTransfer.movementsDates.push(new Date().toISOString());
+
+  clearInterval(timer);
+  timer = startLogOutTimer();
 });
 
 btnClose.addEventListener('click', function (e) {
@@ -272,9 +298,13 @@ btnLoan.addEventListener('click', function (e) {
     requestedLoan > 0 &&
     currentAccout.movements.some(mov => mov > 0.1 * requestedLoan)
   ) {
-    currentAccout.movements.push(requestedLoan);
-    currentAccout.movementsDates.push(new Date().toISOString());
-    updateUi(currentAccout);
+    setTimeout(function () {
+      currentAccout.movements.push(requestedLoan);
+      currentAccout.movementsDates.push(new Date().toISOString());
+      updateUi(currentAccout);
+      clearInterval(timer);
+      timer = startLogOutTimer();
+    }, 2500);
   }
 
   inputLoanAmount.value = '';
@@ -295,6 +325,7 @@ const eatingWell = function (dog) {
   );
 };
 
+//Fake UI
 // currentAccout = account1;
 // updateUi(account1);
 // containerApp.style.opacity = 100;
