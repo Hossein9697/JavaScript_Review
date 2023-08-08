@@ -16,10 +16,10 @@ const account1 = {
     '2020-05-08T14:11:59.604Z',
     '2020-05-27T17:01:17.194Z',
     '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2023-08-07T10:51:36.790Z',
   ],
   currency: 'EUR',
-  locale: 'pt-PT', // de-DE
+  locale: 'de-DE', // de-DE
 };
 
 const account2 = {
@@ -82,19 +82,39 @@ const currencies = new Map([
 
 /////////////////////////////////////////////////
 
-const displayMovements = function (movements, sort = false) {
+const formatMovementDate = function (date, locale) {
+  const calcDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+  Math.round(Math.abs(date - new Date()) / (1000 * 60 * 60 * 24));
+
+  if (daysPassed === 0) return 'Today';
+  if (daysPassed === 1) return 'Yesterday';
+  if (daysPassed <= 7) return `${daysPassed} days ago`;
+  else {
+    return new Intl.DateTimeFormat(locale).format(date);
+  }
+};
+
+const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
-  const moves = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const moves = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   moves.forEach(function (mov, i, arr) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
+    const dateTime = formatMovementDate(
+      new Date(acc.movementsDates[i]),
+      acc.locale
+    );
 
     const html = `
     <div class="movements__row">
-      <div class="movements__type movements__type--${type}">${
-      i + 1
-    } ${type}</div>
-      <div class="movements__value">${mov.toFixed(2)}€</div>
+    <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
+    <div class="movements__date">${dateTime}</div>
+    <div class="movements__value">${mov.toFixed(2)}€</div>
     </div>
     `;
 
@@ -139,7 +159,7 @@ const calcDisplaySummary = function (account) {
 };
 
 const updateUi = function (acc) {
-  displayMovements(acc.movements);
+  displayMovements(acc);
   calcDisplayBalance(acc);
   calcDisplaySummary(acc);
 };
@@ -160,6 +180,20 @@ btnLogin.addEventListener('click', function (e) {
     labelWelcome.textContent = `Welcome back, ${
       currentAccout.owner.split(' ')[0]
     }`;
+
+    const now = new Date();
+    const opetins = {
+      hour: 'numeric',
+      minute: 'numeric',
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      // weekday: 'long',
+    };
+    const locale = currentAccout.locale;
+    labelDate.textContent = new Intl.DateTimeFormat(locale, opetins).format(
+      now
+    );
 
     containerApp.style.opacity = 100;
     inputLoginPin.value = inputLoginUsername.value = '';
@@ -189,9 +223,11 @@ btnTransfer.addEventListener('click', function (e) {
     return;
 
   currentAccout.movements.push(-amount);
+  currentAccout.movementsDates.push(new Date().toISOString());
   updateUi(currentAccout);
 
   userToTransfer.movements.push(amount);
+  userToTransfer.movementsDates.push(new Date().toISOString());
 });
 
 btnClose.addEventListener('click', function (e) {
@@ -219,6 +255,7 @@ btnLoan.addEventListener('click', function (e) {
     currentAccout.movements.some(mov => mov > 0.1 * requestedLoan)
   ) {
     currentAccout.movements.push(requestedLoan);
+    currentAccout.movementsDates.push(new Date().toISOString());
     updateUi(currentAccout);
   }
 
@@ -230,19 +267,8 @@ btnSort.addEventListener('click', function (e) {
   e.preventDefault();
 
   sorted = !sorted;
-  displayMovements(currentAccout.movements, sorted);
+  displayMovements(currentAccout, sorted);
 });
-
-// const temp = function (str) {
-//   return str
-//     .split(' ')
-//     .map(item => {
-//       return item[0].toUpperCase() + item.slice(1);
-//     })
-//     .join(' ');
-// };
-
-// console.log(temp('this is a string'));
 
 const eatingWell = function (dog) {
   return (
@@ -286,3 +312,13 @@ console.log(dog3);
 
 const otherDogs = dogs.slice().sort((a, b) => a.curFood - b.curFood);
 console.log(otherDogs);
+
+const date = new Date(account1.movementsDates[0]);
+console.log(date);
+console.log(date.getFullYear());
+console.log(date.getDate());
+console.log(date.getDay());
+
+// currentAccout = account1;
+// updateUi(account1);
+// containerApp.style.opacity = 100;
