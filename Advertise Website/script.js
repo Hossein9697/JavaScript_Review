@@ -7,6 +7,7 @@ const modal = document.querySelector('.modal');
 const overlay = document.querySelector('.overlay');
 const btnCloseModal = document.querySelector('.btn--close-modal');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
+const btnScrollTo = document.querySelector('.btn--scroll-to');
 
 const openModal = function (e) {
   e.preventDefault();
@@ -43,4 +44,16 @@ header.append(message);
 
 message.addEventListener('click', function () {
   message.remove();
+});
+
+btnScrollTo.addEventListener('click', function () {
+  // Old Way
+  // const coords = section1.getBoundingClientRect();
+
+  // window.scrollTo({
+  //   left: coords.left + window.scrollX,
+  //   top: coords.top + window.scrollX,
+  //   behavior: 'smooth',
+  // });
+  document.querySelector('#section--1').scrollIntoView({ behavior: 'smooth' });
 });
