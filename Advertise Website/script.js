@@ -57,3 +57,21 @@ btnScrollTo.addEventListener('click', function () {
   // });
   document.querySelector('#section--1').scrollIntoView({ behavior: 'smooth' });
 });
+
+// Slow performance
+// document.querySelectorAll('.nav__link').forEach(function (nav) {
+//   nav.addEventListener('click', function (e) {
+//     e.preventDefault();
+//     document
+//       .querySelector(this.getAttribute('href'))
+//       .scrollIntoView({ behavior: 'smooth' });
+//   });
+// });
+
+document.querySelector('.nav__links').addEventListener('click', function (e) {
+  e.preventDefault();
+  if (e.target.classList.contains('nav__link'))
+    document
+      .querySelector(e.target.getAttribute('href'))
+      .scrollIntoView({ behavior: 'smooth' });
+});
