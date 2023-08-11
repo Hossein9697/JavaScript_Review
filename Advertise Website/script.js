@@ -14,6 +14,10 @@ const tabsContent = document.querySelectorAll('.operations__content');
 const nav = document.querySelector('.nav');
 const header = document.querySelector('.header');
 const sections = document.querySelectorAll('.section');
+const slides = document.querySelectorAll('.slide');
+const slider = document.querySelector('.slider');
+const btnSliderLeft = document.querySelector('.slider__btn--left');
+const btnSliderRight = document.querySelector('.slider__btn--right');
 
 const openModal = function (e) {
   e.preventDefault();
@@ -143,4 +147,49 @@ const sectionObserver = new IntersectionObserver(
 sections.forEach(section => {
   section.classList.add('section--hidden');
   sectionObserver.observe(section);
+});
+
+const imgTargets = document.querySelectorAll('img[data-src]');
+const imgObserver = new IntersectionObserver(
+  (entries, observer) => {
+    const [entry] = entries;
+    if (!entry.isIntersecting) return;
+    entry.target.src = entry.target.dataset.src;
+    entry.target.addEventListener('load', () =>
+      entry.target.classList.remove('lazy-img')
+    );
+    observer.unobserve(entry.target);
+  },
+  {
+    root: null,
+    threshold: 0,
+    rootMargin: '-200px',
+  }
+);
+
+imgTargets.forEach(img => imgObserver.observe(img));
+
+let currentSlide = 0;
+const maxLenght = slides.length - 1;
+
+const transformSlides = function (index) {
+  slides.forEach(
+    (slide, i) => (slide.style.transform = `translateX(${100 * (i - index)}%)`)
+  );
+};
+// slider.style.transform = 'scale(0.3)';
+// slider.style.overflow = 'visible';
+
+transformSlides(0);
+
+btnSliderRight.addEventListener('click', function () {
+  if (currentSlide === maxLenght) currentSlide = 0;
+  else currentSlide++;
+  transformSlides(currentSlide);
+});
+
+btnSliderLeft.addEventListener('click', function () {
+  if (currentSlide === 0) currentSlide = maxLenght;
+  else currentSlide--;
+  transformSlides(currentSlide);
 });
