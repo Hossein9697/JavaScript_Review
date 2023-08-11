@@ -13,6 +13,7 @@ const tabsContainer = document.querySelector('.operations__tab-container');
 const tabsContent = document.querySelectorAll('.operations__content');
 const nav = document.querySelector('.nav');
 const header = document.querySelector('.header');
+const sections = document.querySelectorAll('.section');
 
 const openModal = function (e) {
   e.preventDefault();
@@ -112,19 +113,6 @@ nav.addEventListener('mouseover', handleHover.bind(0.5));
 
 nav.addEventListener('mouseout', handleHover.bind(1));
 
-// Old way not optimal
-// const initCoords = document
-//   .querySelector('#section--1')
-//   .getBoundingClientRect();
-
-// window.addEventListener('scroll', function (e) {
-//   if (window.scrollY > initCoords.top) {
-//     nav.classList.add('sticky');
-//   } else {
-//     nav.classList.remove('sticky');
-//   }
-// });
-
 const observer = new IntersectionObserver(
   entries => {
     const [entry] = entries;
@@ -138,3 +126,21 @@ const observer = new IntersectionObserver(
   }
 );
 observer.observe(header);
+
+const sectionObserver = new IntersectionObserver(
+  function (entries, observer) {
+    const [entry] = entries;
+    if (!entry.isIntersecting) return;
+    entry.target.classList.remove('section--hidden');
+    observer.unobserve(entry.target);
+  },
+  {
+    root: null,
+    threshold: 0.15,
+  }
+);
+
+sections.forEach(section => {
+  section.classList.add('section--hidden');
+  sectionObserver.observe(section);
+});
