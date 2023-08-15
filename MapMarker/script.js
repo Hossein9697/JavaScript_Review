@@ -11,12 +11,14 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
+let map, mapClickEvent;
+
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
     function ({ coords: { latitude, longitude } }) {
       //   console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
       const coords = [latitude, longitude];
-      const map = L.map('map').setView(coords, 13);
+      map = L.map('map').setView(coords, 13);
 
       L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         attribution:
@@ -24,19 +26,9 @@ if (navigator.geolocation) {
       }).addTo(map);
 
       map.on('click', function (e) {
-        L.marker(e.latlng)
-          .addTo(map)
-          .bindPopup(
-            L.popup({
-              maxWidth: 250,
-              minWidth: 100,
-              autoClose: false,
-              closeOnClick: false,
-              className: 'running-popup',
-            })
-          )
-          .setPopupContent('Hello')
-          .openPopup();
+        mapClickEvent = e;
+        form.classList.remove('hidden');
+        inputDistance.focus();
       });
     },
     function () {
@@ -44,3 +36,32 @@ if (navigator.geolocation) {
     }
   );
 }
+
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  inputDistance.value =
+    inputCadence.value =
+    inputElevation.value =
+    inputDuration.value =
+      '';
+
+  L.marker(mapClickEvent.latlng)
+    .addTo(map)
+    .bindPopup(
+      L.popup({
+        maxWidth: 250,
+        minWidth: 100,
+        autoClose: false,
+        closeOnClick: false,
+        className: 'running-popup',
+      })
+    )
+    .setPopupContent('Hello')
+    .openPopup();
+});
+
+inputType.addEventListener('change', function () {
+  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+});
