@@ -22,6 +22,8 @@ class Workout {
 }
 
 class Runnig extends Workout {
+  type = 'running';
+
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
@@ -34,6 +36,8 @@ class Runnig extends Workout {
 }
 
 class Cycling extends Workout {
+  type = 'cycling';
+
   constructor(coords, distance, duration, elev) {
     super(coords, distance, duration);
     this.elev = elev;
@@ -48,6 +52,7 @@ class Cycling extends Workout {
 class App {
   #map;
   #mapClickEvent;
+  #workouts = [];
   constructor() {
     this._getPosition();
     form.addEventListener('submit', this._submitForm.bind(this));
@@ -82,8 +87,8 @@ class App {
     inputDistance.focus();
   }
 
-  _createMarker() {
-    L.marker(this.#mapClickEvent.latlng)
+  _createMarker(workout) {
+    L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
         L.popup({
@@ -91,7 +96,7 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: 'running-popup',
+          className: `${workout.type}-popup`,
         })
       )
       .setPopupContent('Hello')
@@ -100,13 +105,47 @@ class App {
 
   _submitForm(e) {
     e.preventDefault();
+    const validateNumber = (...inputs) =>
+      inputs.every(input => Number.isFinite(input));
+    const validatePositive = (...inputs) => inputs.every(input => input > 0);
+
+    let workout;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+    const elevation = +inputElevation.value;
+    const cadence = +inputCadence.value;
+
+    const location = [
+      this.#mapClickEvent.latlng.lat,
+      this.#mapClickEvent.latlng.lng,
+    ];
+
+    if (inputType.value === 'running') {
+      if (
+        !validateNumber(distance, duration, cadence) ||
+        !validatePositive(distance, duration, cadence)
+      )
+        return alert('Numbers should be positive');
+      workout = new Runnig(location, distance, duration, cadence);
+    }
+    if (inputType.value === 'cycling') {
+      if (
+        !validateNumber(distance, duration, elevation) ||
+        !validatePositive(distance, duration)
+      )
+        return alert('Numbers should be positive');
+      workout = new Cycling(location, distance, duration, elevation);
+    }
+
+    this.#workouts.push(workout);
+
+    this._createMarker(workout);
 
     inputDistance.value =
       inputCadence.value =
       inputElevation.value =
       inputDuration.value =
         '';
-    this._createMarker();
   }
 
   _toggleWorkout() {
