@@ -38,7 +38,7 @@ class Runnig extends Workout {
     this._setDescription();
   }
   calcPace() {
-    this.pace = this.distance / this.duration;
+    this.pace = Number(this.distance / this.duration).toFixed(2);
     return this.pace;
   }
 }
@@ -53,7 +53,7 @@ class Cycling extends Workout {
     this._setDescription();
   }
   calcSpeed() {
-    this.speed = this.elev / (this.duration / 60);
+    this.speed = Number(this.elev / (this.duration / 60)).toFixed(2);
     return this.speed;
   }
 }
