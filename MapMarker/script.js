@@ -62,10 +62,12 @@ class App {
   #map;
   #mapClickEvent;
   #workouts = [];
+  #zoomLevel = 13;
   constructor() {
     this._getPosition();
     form.addEventListener('submit', this._submitForm.bind(this));
     inputType.addEventListener('change', this._toggleWorkout);
+    containerWorkouts.addEventListener('click', this._moveToWorkout.bind(this));
   }
 
   _getPosition() {
@@ -81,7 +83,7 @@ class App {
 
   _loadMap({ coords: { latitude, longitude } }) {
     const coords = [latitude, longitude];
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#zoomLevel);
 
     L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
@@ -109,7 +111,7 @@ class App {
         })
       )
       .setPopupContent(
-        x`${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
+        `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
       )
       .openPopup();
   }
@@ -164,7 +166,7 @@ class App {
 
   _renderWorkout(workout) {
     let html = `
-      <li class="workout workout--${workout.type}" data-id="1234567890">
+      <li class="workout workout--${workout.type}" data-id="${workout.id}">
         <h2 class="workout__title">${workout.description}</h2>
           <div class="workout__details">
             <span class="workout__icon">${
@@ -221,6 +223,23 @@ class App {
     form.style.display = 'none';
     form.classList.add('hidden');
     setTimeout(() => (form.style.display = 'grid'), 1000);
+  }
+
+  _moveToWorkout(e) {
+    const workoutEl = e.target.closest('.workout');
+
+    if (!workoutEl) return;
+
+    const selectedWorkout = this.#workouts.find(
+      workout => workout.id === workoutEl.dataset.id
+    );
+
+    this.#map.setView(selectedWorkout.coords, this.#zoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
   }
 }
 
